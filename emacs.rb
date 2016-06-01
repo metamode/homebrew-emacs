@@ -13,8 +13,8 @@ class Emacs < Formula
   end
 
   devel do
-    url "http://alpha.gnu.org/gnu/emacs/pretest/emacs-25.0.93.tar.xz"
-    sha256 "b39199a491ce53f8b8a5b74fe6f1f191257e424f3ba047b3098ff9218e1579f1"
+    url "http://alpha.gnu.org/gnu/emacs/pretest/emacs-25.0.94.tar.xz"
+    sha256 "c9c45ea7e044585f5b35500edbb356c3a2f4547d441d0d23a5e76722794c6da6"
     depends_on "autoconf" => :build
     depends_on "automake" => :build
   end
@@ -31,11 +31,12 @@ class Emacs < Formula
 
   deprecated_option "cocoa" => "with-cocoa"
   deprecated_option "keep-ctags" => "with-ctags"
+  deprecated_option "with-d-bus" => "with-dbus"
   deprecated_option "with-x" => "with-x11"
 
   depends_on "pkg-config" => :build
   depends_on :x11 => :optional
-  depends_on "d-bus" => :optional
+  depends_on "dbus" => :optional
   depends_on "gnutls" => :optional
   depends_on "librsvg" => :optional
   depends_on "imagemagick" => :optional
@@ -74,7 +75,7 @@ class Emacs < Formula
       args << "--without-xml2"
     end
 
-    if build.with? "d-bus"
+    if build.with? "dbus"
       args << "--with-dbus"
     else
       args << "--without-dbus"
@@ -176,23 +177,23 @@ end
 __END__
 --- a/lisp/progmodes/cc-langs.el
 +++ b/lisp/progmodes/cc-langs.el
-@@ -1607,7 +1607,7 @@ the appropriate place for that."
+@@ -1696,7 +1696,7 @@ the appropriate place for that."
  	'("_Bool" "_Complex" "_Imaginary") ; Conditionally defined in C99.
  	(c-lang-const c-primitive-type-kwds))
    c++  (append
--	'("bool" "wchar_t")
-+	'("bool" "wchar_t" "auto") ; Prefer >=C++11 and hack in auto as a base type
+-	'("bool" "wchar_t" "char16_t" "char32_t")
++	'("bool" "wchar_t" "char16_t" "char32_t" "auto")
  	(c-lang-const c-primitive-type-kwds))
    ;; Objective-C extends C, but probably not the new stuff in C99.
    objc (append
-@@ -1857,7 +1857,9 @@ If any of these also are on `c-type-list-kwds', `c-ref-list-kwds',
+@@ -1979,7 +1979,9 @@ If any of these also are on `c-type-list-kwds', `c-ref-list-kwds',
  `c-<>-type-kwds', or `c-<>-arglist-kwds' then the associated clauses
  will be handled."
    t    nil
 -  (c c++) '("auto" "extern" "inline" "register" "static")
-+  (c c++) '("extern" "inline" "register" "static") ; Hack: remove "auto" from the list of keywords here (treat it as a type instead via the C++11 hack previous in this file)
-+  c    (append '("auto") ; but keep auto as a keyword for C
-+	       (c-lang-const c-modifier-kwds))
-   c++  (append '("explicit" "friend" "mutable" "template" "using" "virtual")
++  (c c++) '("extern" "inline" "register" "static")
++  c    (append '("auto")
++               (c-lang-const c-modifier-kwds))
+   c++  (append '("explicit" "friend" "mutable" "template" "thread_local"
+                  "using" "virtual")
  	       (c-lang-const c-modifier-kwds))
-   objc '("auto" "bycopy" "byref" "extern" "in" "inout" "oneway" "out" "static")
